@@ -20,7 +20,7 @@ const Content = styled.div`
     display: grid;
     max-width: 1024px;
     margin:0 auto;
-    border: 1px red dashed;
+
 `;
 
 class VotingBox extends PureComponent {

@@ -1,19 +1,25 @@
 import React from 'react';
-import { Provider, Subscribe, Container } from 'unstated';
-import candidates from '../../assets/candidates';
+import { Container } from 'unstated';
+import fakeAPI from '../../assets/fakeAPI';
 
 class VotingSystem extends Container {
     state = {
         candidates: [],
+        showMessage: true,
+        message: {
+            title: '',
+            caption: '',
+            content: '',    
+        }
     };
     componentDidMount = () => {
         this.loadCandidates();
     }
+    hideMessage = () => {
+        this.setState({ showMessage: false });
+    }
     loadCandidates = () => {
-        fetch("test.json")
-            .then(response => response.json())
-            .then(json => console.log(json));
-        this.setState({ candidates });
+        this.setState({ ...fakeAPI });
     }
     addCadidate = () => {};
     vote = (value ,ndx) => {
