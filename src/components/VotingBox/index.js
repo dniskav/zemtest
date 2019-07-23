@@ -1,7 +1,9 @@
 import React, { PureComponent } from 'react';
 import CandidateBox from '../CandidateBox';
 import styled from 'styled-components';
-import candidates from '../../assets/candidates';
+import { Subscribe } from 'unstated';
+import VotingSystem from '../VotingSystem';
+
 
 const VotingGrid = styled.div`
     display: grid;
@@ -22,17 +24,11 @@ const Content = styled.div`
 `;
 
 class VotingBox extends PureComponent {
-    state = {
-        candidates: [],
-    }
     componentDidMount = () => {
-        this.loadCandidates();
-    }
-    loadCandidates = () => {
-        this.setState({ candidates });
+        this.props.loadCandidates();
     }
     render() {
-        const { candidates } = this.state;
+        const { candidates } = this.props;
         return (
             <Content>
                 <VotingTitle>Previous Rulings</VotingTitle>
@@ -46,4 +42,10 @@ class VotingBox extends PureComponent {
     };
 };
 
-export default VotingBox;
+export default () => (
+    <Subscribe to={[VotingSystem]}>
+        {(vs) => (
+            <VotingBox candidates={vs.state.candidates} loadCandidates={vs.loadCandidates}/>
+        )}
+    </Subscribe>
+    );

@@ -1,26 +1,33 @@
-import React from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import UnstyledVote from '../VoteForm';
+import { Subscribe } from 'unstated';
+import VotingSystem from '../VotingSystem';
 
 
 const UnstyledSince = ({ time, topic, className }) => (
     <div className={className}>
-        <span>{time}</span> ago in <span>{topic}</span>
+        <span>{parseFloat(time / 30).toFixed(1)}</span> month ago in <span>{topic}</span>
     </div>
 );
 
-const UntyledPoolProgress = ({ up, down, className }) => (
-    <div className={className}>
-        <div style={{ width: `${up}%`}} className="votes-up">
-            <FontAwesomeIcon icon="thumbs-up" />{up}%
+const UntyledPoolProgress = ({ up, down, className }) => {
+    const total = up + down;
+    const percentUp = parseFloat(up / total * 100).toFixed(1)
+    const percentDown = parseFloat(down / total * 100).toFixed(1);
+    return (
+        <div className={className}>
+            <div style={{ width: `${percentUp}%`}} className="votes-up">
+                <FontAwesomeIcon icon="thumbs-up" />{percentUp}%
+            </div>
+            <div style={{ width: `${percentDown}%`}}className="votes-down">
+                {percentDown}%<FontAwesomeIcon icon="thumbs-down" />
+            </div>
         </div>
-        <div style={{ width: `${down}%`}}className="votes-down">
-            {down}%<FontAwesomeIcon icon="thumbs-down" />
-        </div>
-    </div>
-);
+    )
+};
 
 const CommonData = styled.div`
     display: flex;
@@ -31,8 +38,11 @@ const CommonData = styled.div`
 `;
 
 const Name = styled.h3`
+    display: flex;
     font-size: 45px;
-    margin-bottom: 5px;
+    height: 98px;
+    margin: 0 0 5px 0;
+    align-items: flex-end;
 `;
 
 const Since = styled(UnstyledSince)`
@@ -59,34 +69,42 @@ const PoolProgress = styled(UntyledPoolProgress)`
 
 const Container = styled.div`
     color: #fff;
+    background-size: cover;
 `;
 
-const CandidateBox = ({ name, up, down, topic, since, url, image, legend, ndx }) => {
-    const style = {
-        backgroundImage: `url(${image})`,
+class CandidateBox extends PureComponent {
+    render() {
+        const { name, up, down, topic, since, image, legend, ndx } = this.props;
+        const style = {
+            backgroundImage: `url(${image})`,
+        };
+        const winning = up > down;
+        const currentStatus = {
+            backgroundColor: (winning) ? '#1cbbb4' : '#ffad1d',
+        };
+        return (
+            <Subscribe to={[VotingSystem]}>
+            {(vs) => (
+            <Container style={style}>
+                <CommonData>
+                    <div className="vote-icon status-vote-icon" style={currentStatus}>
+                        {winning ? (
+                            <FontAwesomeIcon icon="thumbs-up" />
+                        ) : (
+                            <FontAwesomeIcon icon="thumbs-down" />
+                        )}
+                    </div>
+                    <Name>{name}</Name>
+                    <Since time={since} topic={topic} />
+                    <Legend>{legend}</Legend>
+                    <VoteForm name={name} done={false} ndx={ndx} />
+                </CommonData>
+                <PoolProgress up={up} down={down} />
+            </Container>
+            )}
+            </Subscribe>
+        )
     };
-    const winning = up > down;
-    const currentStatus = {
-        backgroundColor: (winning) ? '#1cbbb4' : '#ffad1d',
-    };
-    return (
-        <Container style={style}>
-            <CommonData>
-                <div className="vote-icon status-vote-icon" style={currentStatus}>
-                    {winning ? (
-                        <FontAwesomeIcon icon="thumbs-up" />
-                    ) : (
-                        <FontAwesomeIcon icon="thumbs-down" />
-                    )}
-                </div>
-                <Name>{name}</Name>
-                <Since time={since} topic={topic} />
-                <Legend>{legend}</Legend>
-                <VoteForm name={name} done={false} vote={(param) => {console.log(param)}} ndx={ndx} />
-            </CommonData>
-            <PoolProgress up={up} down={down} />
-        </Container>
-    )
 };
 
 CandidateBox.propTypes = {
@@ -96,7 +114,6 @@ CandidateBox.propTypes = {
     topic: PropTypes.string.isRequired,
     since: PropTypes.number.isRequired,
     ndx: PropTypes.number.isRequired,
-    url: PropTypes.func.isRequired,
     image: PropTypes.string.isRequired,
     legend: PropTypes.string.isRequired,
 }

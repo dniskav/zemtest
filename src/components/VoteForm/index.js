@@ -2,6 +2,8 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { Subscribe } from 'unstated';
+import VotingSystem from '../VotingSystem';
 
 const Button = styled.button`
     background-color: transparent;
@@ -19,49 +21,49 @@ const PreVote = styled.div`
 
 class VoteForm extends PureComponent{
     state = {
-        currentVote: null,
+        currentVote: false,
         done: false,
     }
     voting = (e) => {
-        this.setState({ currentVote: e.target.value });
+        this.setState({ done: false, currentVote: e.target.value });
     }
     sendVote = () => {
         const { currentVote } = this.state;
-        if(currentVote === null) {
-            return;
-        };
         this.setState({ done: true, currentVote });
     }
     enableVoting = () => {
-        this.setState({ done: false, currentVote: null });
+        this.setState({ done: false, currentVote: false });
     }
     render () {
-        const { done } = this.state;
+        const { done, currentVote } = this.state;
         const { name, ndx } = this.props;
         return(
+        <Subscribe to={[VotingSystem]}>
+            {(vs) => (
             <div>
                 {(!done) ? (
                 <PreVote className="vote-form">
-                    <input id={'voteUp-' + ndx} className="vote-radio" type="radio" name={name} value={true} onChange={this.voting} />
+                    <input id={'voteUp-' + ndx} className="vote-radio" type="radio" name={name} value="positive" onChange={this.voting} />
                     <label htmlFor={'voteUp-' + ndx} className="vote-icon vote-up">
                         <FontAwesomeIcon icon="thumbs-up" />
                     </label>
-                    <input id={'voteDown-' + ndx} className="vote-radio" type="radio" name={name} value={false} onChange={this.voting} />
+                    <input id={'voteDown-' + ndx} className="vote-radio" type="radio" name={name} value="negative" onChange={this.voting} />
                     <label htmlFor={'voteDown-' + ndx} className="vote-icon vote-down">
                         <FontAwesomeIcon icon="thumbs-down" />
                     </label>
-                    <Button onClick={this.sendVote}>Vote now</Button>
+                    <Button onClick={() => {this.sendVote(); vs.vote(currentVote, ndx)}} disabled={!currentVote}>Vote now</Button>
                 </PreVote>
                 ) : ( 
                     <Button onClick={this.enableVoting}>Vote again</Button>
                 )}
             </div>
+            )}
+        </Subscribe>
         );
     }
 };
 
 VoteForm.propTypes = {
-    vote: PropTypes.func.isRequired,
     ndx: PropTypes.number.isRequired,
 }
 
