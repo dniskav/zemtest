@@ -8,8 +8,6 @@ import VotingSystem from '../VotingSystem';
 const VotingGrid = styled.div`
     display: grid;
     grid-gap: 42px;
-    grid-template-columns: repeat(2, 492px);
-    grid-template-rows: repeat(2, 550px);
 `;
 
 const VotingTitle = styled.h2`
@@ -30,9 +28,9 @@ class VotingBox extends PureComponent {
     render() {
         const { candidates } = this.props;
         return (
-            <Content>
+            <Content className="voting-box">
                 <VotingTitle>Previous Rulings</VotingTitle>
-                <VotingGrid>
+                <VotingGrid className="voting-grid">
                     {candidates.map((el, ndx) => (
                         <CandidateBox {...el} key={el.name} ndx={ndx} />
                     ))}

@@ -8,7 +8,7 @@ const FormContainer = styled.div`
 `;
 
 const SendCandidateForm = () => (
-    <FormContainer>
+    <FormContainer className="form-container">
         <span>Is there anyone else you would want us to add?</span>
         <button>Submit Name</button>
     </FormContainer>
