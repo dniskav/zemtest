@@ -1,6 +1,5 @@
 import React from 'react';
 import { Container } from 'unstated';
-import fakeAPI from '../../assets/fakeAPI';
 
 class VotingSystem extends Container {
     state = {
@@ -12,14 +11,23 @@ class VotingSystem extends Container {
             content: '',    
         }
     };
-    componentDidMount = () => {
-        this.loadCandidates();
-    }
     hideMessage = () => {
         this.setState({ showMessage: false });
     }
     loadCandidates = () => {
-        this.setState({ ...fakeAPI });
+        fetch('/API/config.json', {})
+        .then((response) => {
+            if(response.ok) {
+                return response.json();
+            } else {
+                throw response.statusText;
+            }
+        })
+        .then((data) => {
+          this.setState({...data});
+        })
+        .catch((err) => console.warn(err));
+
     }
     addCadidate = () => {};
     vote = (value ,ndx) => {
